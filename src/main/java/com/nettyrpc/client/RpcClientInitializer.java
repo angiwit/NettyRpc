@@ -11,6 +11,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 /**
  * Created by luxiaoxun on 2016-03-16.
+ * client端的ChannelInitializer，这里的跟server端的处理顺序相反。比如：client端需要先encode，server端需要先decode
  */
 public class RpcClientInitializer extends ChannelInitializer<SocketChannel> {
     @Override

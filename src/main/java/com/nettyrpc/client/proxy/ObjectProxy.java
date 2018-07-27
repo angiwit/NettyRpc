@@ -22,6 +22,16 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
         this.clazz = clazz;
     }
 
+    /**
+     * 重新InvocationHandler的invoke方法，正常使用jdk动态代理的时候也要实现自己的MyInvocationHandler类，并重写该方法。
+     * 正常重新该方法的时候，根据method名称找到对应的参数，获取到参数，使用method类invoke被代理对象和参数，获取结果。
+     * 通过代理生成的对象（可以被强转成被代理对象），在调用具体方法的时候，还是使用强转后的对象直接调用它的成员方法，但是方法流程会自动走到invoke方法里面。
+     * @param proxy 被代理对象
+     * @param method 被代理对象调用的方法
+     * @param args 调用的方法的参数
+     * @return
+     * @throws Throwable
+     */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (Object.class == method.getDeclaringClass()) {
@@ -60,6 +70,12 @@ public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
         return rpcFuture.get();
     }
 
+    /**
+     * 异步的调用方法，调用后返回Future对象，然后可以从future中获取结果
+     * @param funcName
+     * @param args
+     * @return
+     */
     @Override
     public RPCFuture call(String funcName, Object... args) {
         RpcClientHandler handler = ConnectManage.getInstance().chooseHandler();

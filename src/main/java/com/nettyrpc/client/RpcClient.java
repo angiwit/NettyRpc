@@ -29,6 +29,12 @@ public class RpcClient {
         this.serviceDiscovery = serviceDiscovery;
     }
 
+    /**
+     * 创建同步代理对象，使用jdk动态代理方式实现
+     * @param interfaceClass
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static <T> T create(Class<T> interfaceClass) {
         return (T) Proxy.newProxyInstance(
@@ -38,6 +44,12 @@ public class RpcClient {
         );
     }
 
+    /**
+     * 创建异步代理对象，使用
+     * @param interfaceClass
+     * @param <T>
+     * @return
+     */
     public static <T> IAsyncObjectProxy createAsync(Class<T> interfaceClass) {
         return new ObjectProxy<T>(interfaceClass);
     }

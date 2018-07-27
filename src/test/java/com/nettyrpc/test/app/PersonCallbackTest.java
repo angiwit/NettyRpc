@@ -13,6 +13,8 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by luxiaoxun on 2016/3/17.
+ * 使用callback形式接收返回结果，这里在将数据发送出去之后，就对future结果对象添加callback方法。
+ * callback方法判断：如果已经收到结果，则invokeCallback，将结果打印出来；如果没有接收到结果，将callback放在list中。
  */
 public class PersonCallbackTest {
     public static void main(String[] args) {

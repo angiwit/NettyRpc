@@ -17,6 +17,9 @@ import java.util.concurrent.CountDownLatch;
 public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private static final Logger logger = LoggerFactory.getLogger(RpcClientHandler.class);
 
+    /**
+     * 客户端保持下来的的RPC请求容器
+     */
     private ConcurrentHashMap<String, RPCFuture> pendingRPC = new ConcurrentHashMap<>();
 
     private volatile Channel channel;
@@ -42,6 +45,12 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         this.channel = ctx.channel();
     }
 
+    /**
+     * 客户端收到服务端返回时的处理
+     * @param ctx
+     * @param response
+     * @throws Exception
+     */
     @Override
     public void channelRead0(ChannelHandlerContext ctx, RpcResponse response) throws Exception {
         String requestId = response.getRequestId();

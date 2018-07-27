@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by luxiaoxun on 2016/3/16.
+ * 异步接收返回参数，但是不适用callback方式，仅使用超时获取的方式。如果失败，相当于一个用户的请求处理失败，不会影响全局，不会拖垮应用。
  */
 public class BenchmarkAsync {
     public static void main(String[] args) throws InterruptedException {

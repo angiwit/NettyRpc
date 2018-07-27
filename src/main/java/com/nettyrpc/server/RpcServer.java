@@ -13,11 +13,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.*;
-
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
@@ -26,6 +21,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * RPC Server
@@ -65,6 +66,8 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
             }
         }
     }
+
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -112,7 +115,7 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
                         public void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
                                     .addLast(new LengthFieldBasedFrameDecoder(65536, 0, 4, 0, 0))
-                                    .addLast(new RpcDecoder(RpcRequest.class))
+                                    .addLast(new RpcDecoder(RpcRequest.class))//这里能够运行这个decoder是因为这时channel中接收到的参数是ByteBuf，满足RpcDecoder的接收参数。
                                     .addLast(new RpcEncoder(RpcResponse.class))
                                     .addLast(new RpcHandler(handlerMap));
                         }

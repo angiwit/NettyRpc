@@ -6,6 +6,7 @@ import com.nettyrpc.test.client.HelloService;
 
 /**
  * Created by luxiaoxun on 2016-03-11.
+ * 本地形式的调用
  */
 public class Benchmark {
 
@@ -26,7 +27,7 @@ public class Benchmark {
                 public void run() {
                     for (int i = 0; i < requestNum; i++) {
                         final HelloService syncClient = rpcClient.create(HelloService.class);
-                        String result = syncClient.hello(Integer.toString(i));
+                        String result = syncClient.hello(Integer.toString(i));//这里虽然是直接方法调用，但是内部流程会走到proxy类的invoke方法
                         if (!result.equals("Hello! " + i))
                             System.out.print("error = " + result);
                     }
