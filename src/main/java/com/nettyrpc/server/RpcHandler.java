@@ -28,6 +28,12 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
         this.handlerMap = handlerMap;
     }
 
+    /**
+     * 业务处理是通过自己的业务线程池处理的，没有直接使用IO线程处理，即使业务处理里面可能有阻塞问题，也不会影像到IO线程。
+     * @param ctx
+     * @param request
+     * @throws Exception
+     */
     @Override
     public void channelRead0(final ChannelHandlerContext ctx,final RpcRequest request) throws Exception {
         RpcServer.submit(new Runnable() {

@@ -30,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * RPC Server
+ * 由于dubbo只做网络请求的转发，所以做为中间件是比较适合的，dubbo服务端接收到请求后就直接把请求转到tomcat上，然后等待tomcat的返回。
+ * tomcat可以返回的很慢，但是这个不是dubbo造成的，而且dubbo可以支持很高的并发连接量，所以即使客户端有很高的并发量也能支持。
  *
  * @author huangyong, luxiaoxun
  */
