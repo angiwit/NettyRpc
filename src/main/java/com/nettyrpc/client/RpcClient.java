@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * RPC Client（Create RPC proxy）
- *
+ * 暴露给客户端使用，客户端可以使用该工具创建一个代理对象，代理对象可以直接调用对象的内部方法，但是在运行时却已经是通过代理来运行了。
  * @author luxiaoxun
  */
 public class RpcClient {

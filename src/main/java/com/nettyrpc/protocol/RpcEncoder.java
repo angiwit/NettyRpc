@@ -7,7 +7,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 /**
  * RPC Encoder
  * @author huangyong
- * 继承于netty的MessageToByteEncoder，这个类在channel接收到数据的时候会根据数据类型（比如这里是Object in），使用重写后的方法encode进行处理。
+ * 继承于netty的MessageToByteEncoder，这个类在channel接收到数据的时候会根据数据类型（比如这里是Object in），
+ * 使用重写后的方法encode进行处理。
  */
 public class RpcEncoder extends MessageToByteEncoder {
 

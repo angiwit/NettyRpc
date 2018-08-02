@@ -13,6 +13,8 @@ import java.util.UUID;
 
 /**
  * Created by luxiaoxun on 2016-03-16.
+ * 对接收到app端用户请求的时候的处理，通过代理的方式调用到该方法，该方法调用到连接管理类的负载均衡方法获取一个handler
+ * 然后通过这个handler将用户的请求发送给rpc的server端。
  */
 public class ObjectProxy<T> implements InvocationHandler, IAsyncObjectProxy {
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectProxy.class);

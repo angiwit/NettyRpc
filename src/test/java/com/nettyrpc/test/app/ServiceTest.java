@@ -79,7 +79,7 @@ public class ServiceTest {
         IAsyncObjectProxy helloPersonService = rpcClient.createAsync(PersonService.class);
         int num = 5;
         RPCFuture result = helloPersonService.call("GetTestPerson", "xiaoming", num);
-        List<Person> persons = (List<Person>) result.get();
+        List<Person> persons = (List<Person>) result.get();//这个地方同步的从
         List<Person> expectedPersons = new ArrayList<>();
         for (int i = 0; i < num; i++) {
             expectedPersons.add(new Person(Integer.toString(i), "xiaoming"));

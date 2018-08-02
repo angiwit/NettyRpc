@@ -22,6 +22,9 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * RPC Connect Manage of ZooKeeper
  * Created by luxiaoxun on 2016-03-16.
+ * 管理client与server之间的长连接创建（上层调用是serviceDiscovery）
+ * 把handler注册下来，并对请求进行负载均衡的获取handler
+ * 获取handler的时候可能handler还没有注册成功，处理需要进行线程间通信的逻辑
  */
 public class ConnectManage {
     private static final Logger logger = LoggerFactory.getLogger(ConnectManage.class);
@@ -117,7 +120,7 @@ public class ConnectManage {
             @Override
             public void run() {
                 Bootstrap b = new Bootstrap();
-                b.group(eventLoopGroup)
+                b.group(eventLoopGroup) //客户端的eventLoopGroup（这里用了4个线程），用来处理客户端的IO连接并注册handler。
                         .channel(NioSocketChannel.class)
                         .handler(new RpcClientInitializer());
 
@@ -128,7 +131,7 @@ public class ConnectManage {
                         if (channelFuture.isSuccess()) {
                             logger.debug("Successfully connect to remote server. remote peer = " + remotePeer);
                             RpcClientHandler handler = channelFuture.channel().pipeline().get(RpcClientHandler.class);
-                            addHandler(handler);
+                            addHandler(handler);//这里添加handler主要是为了连接建立之后对请求数据的处理能负载均衡的获取一个handler来处理。
                         }
                     }
                 });
@@ -139,19 +142,27 @@ public class ConnectManage {
     private void addHandler(RpcClientHandler handler) {
         connectedHandlers.add(handler);
         InetSocketAddress remoteAddress = (InetSocketAddress) handler.getChannel().remoteAddress();
-        connectedServerNodes.put(remoteAddress, handler);
+        connectedServerNodes.put(remoteAddress, handler);//服务端地址:handler
         signalAvailableHandler();
     }
 
+    /**
+     * 在注册上来handler之后，通知阻塞线程
+     */
     private void signalAvailableHandler() {
-        lock.lock();
+        lock.lock();//代码执行的时候还是要获取锁，防止多个线程同时进入。但是通知具体（生产者/消费者）线程是condition做的，这样可以保证只通知到一个线程
         try {
-            connected.signalAll();
+            connected.signalAll();//通知需要使用handler的线程，可以开始使用了。
         } finally {
             lock.unlock();
         }
     }
 
+    /**
+     * 在没有handler注册上来的时候（由于有动态重新加载功能所以注册的handler在某个时刻可能会被清空），线程阻塞。
+     * @return
+     * @throws InterruptedException
+     */
     private boolean waitingForHandler() throws InterruptedException {
         lock.lock();
         try {
@@ -161,6 +172,10 @@ public class ConnectManage {
         }
     }
 
+    /**
+     * 负载均衡，在客户端与处理线程的负载均衡
+     * @return
+     */
     public RpcClientHandler chooseHandler() {
         int size = connectedHandlers.size();
         while (isRuning && size <= 0) {
@@ -174,7 +189,7 @@ public class ConnectManage {
                 throw new RuntimeException("Can't connect any servers!", e);
             }
         }
-        int index = (roundRobin.getAndAdd(1) + size) % size;
+        int index = (roundRobin.getAndAdd(1) + size) % size;//IO连接建立后，对请求数据获取一个handler的负载均衡，现在是4个线程，相当于client端的cpu核心数
         return connectedHandlers.get(index);
     }
 

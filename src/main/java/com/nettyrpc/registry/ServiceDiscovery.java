@@ -1,11 +1,5 @@
 package com.nettyrpc.registry;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadLocalRandom;
-
 import com.nettyrpc.client.ConnectManage;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -14,9 +8,14 @@ import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
- * 服务发现
- *
+ * 服务发现，在client端启动的时候调用到构造方法，构造方法会首先跟zk建立连接，然后从zk的datapath上获取服务器地址并与服务器建立长连接
  * @author huangyong
  * @author luxiaoxun
  */

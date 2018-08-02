@@ -1,19 +1,15 @@
 package com.nettyrpc.registry;
 
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+
 /**
- * 服务注册
+ * 服务注册，服务端server启动的时候会先与zk建立连接，然后建服务端的地址端口信息注册到zk的datapath上。
  *
  * @author huangyong
  * @author luxiaoxun
@@ -40,6 +36,11 @@ public class ServiceRegistry {
         }
     }
 
+    /**
+     * 使用countDownLatch，可以保证一定能拿到zk的连接结果，如果没有结果就不会回调到countDown，就不会返回一个zk连接。
+     * 而一旦回调了并调用了countDown，一定能保证拿到的zk连接是一个有效的连接
+     * @return
+     */
     private ZooKeeper connectServer() {
         ZooKeeper zk = null;
         try {

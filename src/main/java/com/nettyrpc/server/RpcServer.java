@@ -43,8 +43,8 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
     private Map<String, Object> handlerMap = new HashMap<>();
     private static ThreadPoolExecutor threadPoolExecutor;
 
-    private EventLoopGroup bossGroup = null;
-    private EventLoopGroup workerGroup = null;
+    private EventLoopGroup bossGroup = null;//这里面包含了一个接收连接的线程（mainReactor）和多个处理IO读取、简单业务处理、IO发送的线程（subReactor）
+    private EventLoopGroup workerGroup = null;//这是真正的复杂业务处理的线程池，数目是核心数目的两倍
 
     public RpcServer(String serverAddress) {
         this.serverAddress = serverAddress;
@@ -106,8 +106,8 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
 
     public void start() throws Exception {
         if (bossGroup == null && workerGroup == null) {
-            bossGroup = new NioEventLoopGroup();
-            workerGroup = new NioEventLoopGroup();
+            bossGroup = new NioEventLoopGroup();//server端的处理IO连接的group
+            workerGroup = new NioEventLoopGroup();//server端的业务处理group
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
@@ -131,7 +131,7 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
             logger.info("Server started on port {}", port);
 
             if (serviceRegistry != null) {
-                serviceRegistry.register(serverAddress);
+                serviceRegistry.register(serverAddress);//服务端启动的时候，就将服务端的地址注册到zk
             }
 
             future.channel().closeFuture().sync();

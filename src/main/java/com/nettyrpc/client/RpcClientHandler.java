@@ -13,6 +13,10 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by luxiaoxun on 2016-03-14.
+ * 接收到服务端返回的响应的时候的一个具体业务处理类
+ * 主要逻辑是：
+ *  1、将app端的用户请求发送到server端。
+ *  2、将server端的返回值处理成一个RPCFuture对象并交给RPCFuture处理后续业务逻辑
  */
 public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
     private static final Logger logger = LoggerFactory.getLogger(RpcClientHandler.class);
@@ -22,6 +26,9 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
      */
     private ConcurrentHashMap<String, RPCFuture> pendingRPC = new ConcurrentHashMap<>();
 
+    /**
+     * 由于异步调用后续接口，这里需要将chennel保存下来，所有线程共用该channel。
+     */
     private volatile Channel channel;
     private SocketAddress remotePeer;
 
@@ -71,6 +78,12 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
+    /**
+     * 将app端的用户请求发送到server端。
+     * 操作结束的时候countDown掉，才让这个线程重新变为可运行状态。如果不加countDown，在返回值添加callback之前请求可能就已经返回了，callback永远不会被调用到。
+     * @param request
+     * @return
+     */
     public RPCFuture sendRequest(RpcRequest request) {
         final CountDownLatch latch = new CountDownLatch(1);
         RPCFuture rpcFuture = new RPCFuture(request);
